@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Mundo 7 - Estación Cuántica Movimiento Total</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    
+    <script>
+      // SISTEMA DE PINTURA
+      AFRAME.registerComponent('pincel-cuantico', {
+        init: function () {
+          this.pintando = false;
+          this.el.addEventListener('mousedown', () => { this.pintando = true; });
+          this.el.addEventListener('triggerdown', () => { this.pintando = true; });
+          this.el.addEventListener('mouseup', () => { this.pintando = false; });
+          this.el.addEventListener('triggerup', () => { this.pintando = false; });
+        },
+        tick: function () {
+          if (this.pintando) {
+            let scene = document.querySelector('a-scene');
+            let trazo = document.createElement('a-sphere');
+            let worldPos = new THREE.Vector3();
+            this.el.object3D.getWorldPosition(worldPos);
+            trazo.setAttribute('position', worldPos);
+            trazo.setAttribute('radius', '0.04');
+            trazo.setAttribute('color', '#00fff2');
+            scene.appendChild(trazo);
+          }
+        }
+      });
+
+      // LÓGICA DE PORTALES
+      AFRAME.registerComponent('enlace-portal', {
+        schema: { destino: {type: 'string'} },
+        init: function () {
+          this.el.addEventListener('click', () => { window.location.href = this.data.destino; });
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <a-scene>
+      <a-assets>
+        <a-asset-item id="estacion" src="https://cdn.aframe.io/test-models/models/glTF-2.0/virtualcity/VC.gltf"></a-asset-item>
+      </a-assets>
+
+      <a-sky color="#020205"></a-sky>
+
+      <a-entity position="0 2.5 -3">
+        <a-plane color="#111" width="4" height="2.5" opacity="0.9"></a-plane>
+        <a-text value="CONTROLES DE LA ESTACION\n\n- MOVERSE: Teclas W-A-S-D (PC) / Joystick (VR)\n- VOLAR: Teclas Q-E (PC)\n- PINTAR: Gatillo o Click Izquierdo\n- PORTALES: Toca la energía interior" 
+                align="center" color="#00fff2" width="3.5" position="0 0 0.1"></a-text>
+      </a-entity>
+
+      <a-entity gltf-model="#estacion" position="0 -5 -15" scale="0.05 0.05 0.05"></a-entity>
+
+      <a-entity position="-10 2 -8">
+        <a-torus radius="2" radius-tubular="0.1" color="red"></a-torus>
+        <a-circle radius="2" class="clickable" enlace-portal="destino: mundo6.html" color="red" opacity="0.3"
+                  animation="property: material.opacity; from: 0.2; to: 0.5; dir: alternate; loop: true; dur: 1000"></a-circle>
+        <a-text value="VOLVER" align="center" position="0 2.5 0" color="red"></a-text>
+      </a-entity>
+
+      <a-entity position="10 2 -8">
+        <a-torus radius="2" radius-tubular="0.1" color="gold"></a-torus>
+        <a-circle radius="2" class="clickable" enlace-portal="destino: mundo8.html" color="gold" opacity="0.3"
+                  animation="property: material.opacity; from: 0.2; to: 0.5; dir: alternate; loop: true; dur: 1000"></a-circle>
+        <a-text value="SIGUIENTE" align="center" position="0 2.5 0" color="gold"></a-text>
+      </a-entity>
+
+      <a-entity id="rig" movement-controls="fly: true; speed: 0.3" wasd-controls="fly: true">
+        <a-entity camera position="0 1.6 0" look-controls>
+          <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
+          <a-cursor color="#00fff2" raycaster="objects: .clickable"></a-cursor>
+        </a-entity>
+        <a-entity laser-controls="hand: right" pincel-cuantico raycaster="objects: .clickable; far: 20"></a-entity>
+        <a-entity laser-controls="hand: left" pincel-cuantico raycaster="objects: .clickable; far: 20"></a-entity>
+      </a-entity>
+
+    </a-scene>
+  </body>
+</html>
